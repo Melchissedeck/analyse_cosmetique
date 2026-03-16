@@ -1,0 +1,9 @@
+.venv/
+
+# Fichiers temporaires Python
+__pycache__/
+*.pyc
+*.csv
+
+
+beauty.parquet
