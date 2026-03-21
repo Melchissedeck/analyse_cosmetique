@@ -177,9 +177,23 @@ with col_e:
                     all_categories.append(final_tag)
                     
     if all_categories:
-        # On affiche le Top 10 des vrais segments
+        # On extrait le Top 10 des vrais segments
         top_categories = pd.DataFrame.from_dict(Counter(all_categories), orient='index', columns=['Nombre de produits']).sort_values(by='Nombre de produits', ascending=False).head(10)
-        st.bar_chart(top_categories)
+        
+        # On réinitialise l'index pour que Altair puisse lire les colonnes correctement
+        top_categories = top_categories.reset_index().rename(columns={'index': 'Segment'})
+        
+        # --- NOUVEAU : Graphique en Donut avec Altair ---
+        donut_chart = alt.Chart(top_categories).mark_arc(innerRadius=60).encode(
+            theta=alt.Theta(field="Nombre de produits", type="quantitative"),
+            # CORRECTION : On utilise l'ordre exact du DataFrame pour trier la légende
+            color=alt.Color(field="Segment", type="nominal", sort=top_categories['Segment'].tolist(), legend=alt.Legend(title="Segments")),
+            tooltip=['Segment', 'Nombre de produits']
+        ).properties(
+            height=350
+        )
+        
+        st.altair_chart(donut_chart, use_container_width=True)
 
 with col_f:
     st.subheader("Comparaison : Nombre moyen d'ingrédients")
